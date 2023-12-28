@@ -3,37 +3,7 @@ import user_requests as req
 
 login_success = False
 
-while not login_success:
-    app = user_interface.LoginPageApp()
-    reply = app.run()
-    account_name, user_name, password = reply[0], reply[1], reply[2]
-    response = req.login(
-        account_name=account_name, user_name=user_name, password=password
-    )
-    boolean, value_1, value_2 = response[0], response[1], response[2]
-
-    if not boolean:
-        continue
-
-    elif boolean:
-        refresh_token, access_token, account_id, user_id, role = (
-            value_1,
-            value_2,
-            response[3],
-            response[4],
-            response[5],
-        )
-        login_success = True
-
-user_interface_app = user_interface.UserInterfaceApp()
-account_admin_interface_app = user_interface.AccountAdminInterfaceApp()
-
-app_stack = [None]
-if role == "user":
-    app_stack.append(user_interface_app)
-
-elif role == "account_admin":
-    app_stack.append(account_admin_interface_app)
+refresh_token, access_token, account_id, user_id, role = None, None, None, None, None
 
 
 def construct_error_app(status_code: int | str, message: str):
@@ -1124,347 +1094,392 @@ def manage_delete_user(user_name=None):
 
 # Running the app stack
 
-if app_stack[-1] is not None:
-    if app_stack[-1].name == "account_admin_interface_app":
-        while app_stack:
-            app = app_stack.pop()
 
-            if app is None:
-                break
+def user_mode():
+    """Function that calls the kallabox api in user mode."""
+    global login_success
+    while not login_success:
+        app = user_interface.LoginPageApp()
+        reply = app.run()
+        account_name, user_name, password = reply[0], reply[1], reply[2]
+        response = req.login(
+            account_name=account_name, user_name=user_name, password=password
+        )
+        boolean, value_1, value_2 = response[0], response[1], response[2]
 
-            response = app.run()
+        if not boolean:
+            continue
 
-            if app.name == "account_admin_interface_app":
-                if response == "income":
-                    new_app = user_interface.IncomeMenuApp()
-                    app_stack.append(new_app)
+        elif boolean:
+            global refresh_token, access_token, account_id, user_id, role
+            refresh_token, access_token, account_id, user_id, role = (
+                value_1,
+                value_2,
+                response[3],
+                response[4],
+                response[5],
+            )
+            login_success = True
 
-                elif response == "expenditure":
-                    new_app = user_interface.ExpenditureMenuApp()
-                    app_stack.append(new_app)
+    user_interface_app = user_interface.UserInterfaceApp()
+    account_admin_interface_app = user_interface.AccountAdminInterfaceApp()
 
-                elif response == "expense_type":
-                    new_app = user_interface.ExpenseTypeMenuApp()
-                    app_stack.append(new_app)
+    app_stack = [None]
+    if role == "user":
+        app_stack.append(user_interface_app)
 
-                elif response == "account":
-                    new_app = user_interface.AccountMenuApp()
-                    app_stack.append(new_app)
+    elif role == "account_admin":
+        app_stack.append(account_admin_interface_app)
 
-                elif response == "logout":  ### To be changed
-                    new_app = manage_logout()
-                    app_stack.pop()
+    if app_stack[-1] is not None:
+        if app_stack[-1].name == "account_admin_interface_app":
+            while app_stack:
+                app = app_stack.pop()
+
+                if app is None:
                     break
 
-            elif app.name == "error_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountAdminInterfaceApp())
+                response = app.run()
 
-            elif app.name == "income_menu_app":
-                if response == "add_income":
-                    new_app = user_interface.AddIncomeApp()
-                    app_stack.append(new_app)
+                if app.name == "account_admin_interface_app":
+                    if response == "income":
+                        new_app = user_interface.IncomeMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "get_income":
-                    new_app = manage_get_income()
-                    app_stack.append(new_app)
+                    elif response == "expenditure":
+                        new_app = user_interface.ExpenditureMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "update_income":
-                    new_app = manage_update_income()
-                    app_stack.append(new_app)
+                    elif response == "expense_type":
+                        new_app = user_interface.ExpenseTypeMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.AccountAdminInterfaceApp())
+                    elif response == "account":
+                        new_app = user_interface.AccountMenuApp()
+                        app_stack.append(new_app)
 
-            elif app.name == "expenditure_menu_app":
-                if response == "add_expend":
-                    new_app = user_interface.AddExpenditureApp()
-                    app_stack.append(new_app)
+                    elif response == "logout":  ### To be changed
+                        new_app = manage_logout()
+                        app_stack.pop()
+                        break
 
-                elif response == "get_expend":
-                    new_app = manage_get_expenditure()
-                    app_stack.append(new_app)
+                elif app.name == "error_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountAdminInterfaceApp())
 
-                elif response == "update_expend":
-                    new_app = manage_update_expenditure()
-                    app_stack.append(new_app)
+                elif app.name == "income_menu_app":
+                    if response == "add_income":
+                        new_app = user_interface.AddIncomeApp()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.AccountAdminInterfaceApp())
+                    elif response == "get_income":
+                        new_app = manage_get_income()
+                        app_stack.append(new_app)
 
-            elif app.name == "expense_type_menu_app":
-                if response == "add_expense":
-                    new_app = user_interface.AddExpenseTypeApp()
-                    app_stack.append(new_app)
+                    elif response == "update_income":
+                        new_app = manage_update_income()
+                        app_stack.append(new_app)
 
-                elif response == "get_expense":
-                    new_app = manage_get_expense_type()
-                    app_stack.append(new_app)
+                    elif response == "back":
+                        app_stack.append(user_interface.AccountAdminInterfaceApp())
 
-                elif response == "update_expense":
-                    new_app = manage_update_expense_type()
-                    app_stack.append(new_app)
+                elif app.name == "expenditure_menu_app":
+                    if response == "add_expend":
+                        new_app = user_interface.AddExpenditureApp()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.AccountAdminInterfaceApp())
+                    elif response == "get_expend":
+                        new_app = manage_get_expenditure()
+                        app_stack.append(new_app)
 
-            elif app.name == "add_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                    elif response == "update_expend":
+                        new_app = manage_update_expenditure()
+                        app_stack.append(new_app)
 
-                elif type(response) is tuple:
-                    income, method = response[0], response[1]
-                    new_app = manage_add_income(income=income, payment_method=method)
-                    app_stack.append(new_app)
+                    elif response == "back":
+                        app_stack.append(user_interface.AccountAdminInterfaceApp())
 
-            elif app.name == "get_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                elif app.name == "expense_type_menu_app":
+                    if response == "add_expense":
+                        new_app = user_interface.AddExpenseTypeApp()
+                        app_stack.append(new_app)
 
-            elif app.name == "update_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                    elif response == "get_expense":
+                        new_app = manage_get_expense_type()
+                        app_stack.append(new_app)
 
-                elif type(response) is tuple:
-                    new_app = manage_update_income(response[0], response[1])
-                    print(response[0], response[1])
-                    app_stack.append(new_app)
+                    elif response == "update_expense":
+                        new_app = manage_update_expense_type()
+                        app_stack.append(new_app)
 
-            elif app.name == "add_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                    elif response == "back":
+                        app_stack.append(user_interface.AccountAdminInterfaceApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_add_expenditure(response[0], response[1])
-                    app_stack.append(new_app)
+                elif app.name == "add_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-            elif app.name == "get_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                    elif type(response) is tuple:
+                        income, method = response[0], response[1]
+                        new_app = manage_add_income(
+                            income=income, payment_method=method
+                        )
+                        app_stack.append(new_app)
 
-            elif app.name == "update_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                elif app.name == "get_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_update_expenditure(
-                        response[0], response[2], response[1]
-                    )
-                    app_stack.append(new_app)
+                elif app.name == "update_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-            elif app.name == "add_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                    elif type(response) is tuple:
+                        new_app = manage_update_income(response[0], response[1])
+                        print(response[0], response[1])
+                        app_stack.append(new_app)
 
-                elif type(response) is str:
-                    new_app = manage_add_expense_type(response)
-                    app_stack.append(new_app)
+                elif app.name == "add_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-            elif app.name == "get_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                    elif type(response) is tuple:
+                        new_app = manage_add_expenditure(response[0], response[1])
+                        app_stack.append(new_app)
 
-            elif app.name == "update_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                elif app.name == "get_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_update_expense_type(
-                        expense_type=response[1], expense_id=response[0]
-                    )
-                    app_stack.append(new_app)
+                elif app.name == "update_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-            elif app.name == "account_menu_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountAdminInterfaceApp())
+                    elif type(response) is tuple:
+                        new_app = manage_update_expenditure(
+                            response[0], response[2], response[1]
+                        )
+                        app_stack.append(new_app)
 
-                elif response == "get_users":
-                    new_app = manage_get_users()
-                    app_stack.append(new_app)
+                elif app.name == "add_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
 
-                elif response == "update_user_role":
-                    new_app = manage_update_user_role()
-                    app_stack.append(new_app)
+                    elif type(response) is str:
+                        new_app = manage_add_expense_type(response)
+                        app_stack.append(new_app)
 
-                elif response == "delete_user":
-                    new_app = manage_delete_user()
-                    app_stack.append(new_app)
+                elif app.name == "get_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
 
-                elif response == "add_user":
-                    new_app = user_interface.AddUserApp()
-                    app_stack.append(new_app)
+                elif app.name == "update_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
 
-            elif app.name == "add_user_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountMenuApp())
+                    elif type(response) is tuple:
+                        new_app = manage_update_expense_type(
+                            expense_type=response[1], expense_id=response[0]
+                        )
+                        app_stack.append(new_app)
 
-                elif type(response) is tuple:
-                    new_app = manage_add_user(
-                        response[0], response[1], response[2], response[3], response[4]
-                    )
-                    app_stack.append(new_app)
+                elif app.name == "account_menu_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountAdminInterfaceApp())
 
-            elif app.name == "get_users_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountMenuApp())
+                    elif response == "get_users":
+                        new_app = manage_get_users()
+                        app_stack.append(new_app)
 
-            if app.name == "update_user_role_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountMenuApp())
+                    elif response == "update_user_role":
+                        new_app = manage_update_user_role()
+                        app_stack.append(new_app)
 
-                elif type(response) is tuple:
-                    new_app = manage_update_user_role(response[0], response[1])
-                    app_stack.append(new_app)
+                    elif response == "delete_user":
+                        new_app = manage_delete_user()
+                        app_stack.append(new_app)
 
-            if app.name == "delete_user_app":
-                if response == "back":
-                    app_stack.append(user_interface.AccountMenuApp())
+                    elif response == "add_user":
+                        new_app = user_interface.AddUserApp()
+                        app_stack.append(new_app)
 
-                elif type(response) is str:
-                    new_app = manage_delete_user(response)
-                    app_stack.append(new_app)
+                elif app.name == "add_user_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountMenuApp())
 
-    elif app_stack[-1].name == "user_interface_app":
-        while app_stack:
-            app = app_stack.pop()
+                    elif type(response) is tuple:
+                        new_app = manage_add_user(
+                            response[0],
+                            response[1],
+                            response[2],
+                            response[3],
+                            response[4],
+                        )
+                        app_stack.append(new_app)
 
-            if app is None:
-                break
+                elif app.name == "get_users_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountMenuApp())
 
-            response = app.run()
+                if app.name == "update_user_role_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountMenuApp())
 
-            if app.name == "user_interface_app":
-                if response == "income":
-                    new_app = user_interface.IncomeMenuApp()
-                    app_stack.append(new_app)
+                    elif type(response) is tuple:
+                        new_app = manage_update_user_role(response[0], response[1])
+                        app_stack.append(new_app)
 
-                elif response == "expenditure":
-                    new_app = user_interface.ExpenditureMenuApp()
-                    app_stack.append(new_app)
+                if app.name == "delete_user_app":
+                    if response == "back":
+                        app_stack.append(user_interface.AccountMenuApp())
 
-                elif response == "expense_type":
-                    new_app = user_interface.ExpenseTypeMenuApp()
-                    app_stack.append(new_app)
+                    elif type(response) is str:
+                        new_app = manage_delete_user(response)
+                        app_stack.append(new_app)
 
-                elif response == "logout":  ### To be changed
-                    app_stack.pop()
-                    new_app = manage_logout()
-                    app_stack.append(new_app)
+        elif app_stack[-1].name == "user_interface_app":
+            while app_stack:
+                app = app_stack.pop()
+
+                if app is None:
                     break
 
-            elif app.name == "error_app":
-                if response == "back":
-                    app_stack.append(user_interface.UserInterfaceApp())
+                response = app.run()
 
-            elif app.name == "income_menu_app":
-                if response == "add_income":
-                    new_app = user_interface.AddIncomeApp()
-                    app_stack.append(new_app)
+                if app.name == "user_interface_app":
+                    if response == "income":
+                        new_app = user_interface.IncomeMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "get_income":
-                    new_app = manage_get_income()
-                    app_stack.append(new_app)
+                    elif response == "expenditure":
+                        new_app = user_interface.ExpenditureMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "update_income":
-                    new_app = manage_update_income()
-                    app_stack.append(new_app)
+                    elif response == "expense_type":
+                        new_app = user_interface.ExpenseTypeMenuApp()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.UserInterfaceApp())
+                    elif response == "logout":  ### To be changed
+                        app_stack.pop()
+                        new_app = manage_logout()
+                        app_stack.append(new_app)
+                        break
 
-            elif app.name == "expenditure_menu_app":
-                if response == "add_expend":
-                    new_app = user_interface.AddExpenditureApp()
-                    app_stack.append(new_app)
+                elif app.name == "error_app":
+                    if response == "back":
+                        app_stack.append(user_interface.UserInterfaceApp())
 
-                elif response == "get_expend":
-                    new_app = manage_get_expenditure()
-                    app_stack.append(new_app)
+                elif app.name == "income_menu_app":
+                    if response == "add_income":
+                        new_app = user_interface.AddIncomeApp()
+                        app_stack.append(new_app)
 
-                elif response == "update_expend":
-                    new_app = manage_update_expenditure()
-                    app_stack.append(new_app)
+                    elif response == "get_income":
+                        new_app = manage_get_income()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.UserInterfaceApp())
+                    elif response == "update_income":
+                        new_app = manage_update_income()
+                        app_stack.append(new_app)
 
-            elif app.name == "expense_type_menu_app":
-                if response == "add_expense":
-                    new_app = user_interface.AddExpenseTypeApp()
-                    app_stack.append(new_app)
+                    elif response == "back":
+                        app_stack.append(user_interface.UserInterfaceApp())
 
-                elif response == "get_expense":
-                    new_app = manage_get_expense_type()
-                    app_stack.append(new_app)
+                elif app.name == "expenditure_menu_app":
+                    if response == "add_expend":
+                        new_app = user_interface.AddExpenditureApp()
+                        app_stack.append(new_app)
 
-                elif response == "update_expense":
-                    new_app = manage_update_expense_type()
-                    app_stack.append(new_app)
+                    elif response == "get_expend":
+                        new_app = manage_get_expenditure()
+                        app_stack.append(new_app)
 
-                elif response == "back":
-                    app_stack.append(user_interface.UserInterfaceApp())
+                    elif response == "update_expend":
+                        new_app = manage_update_expenditure()
+                        app_stack.append(new_app)
 
-            elif app.name == "add_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                    elif response == "back":
+                        app_stack.append(user_interface.UserInterfaceApp())
 
-                elif type(response) is tuple:
-                    income, method = response[0], response[1]
-                    new_app = manage_add_income(income=income, payment_method=method)
-                    app_stack.append(new_app)
+                elif app.name == "expense_type_menu_app":
+                    if response == "add_expense":
+                        new_app = user_interface.AddExpenseTypeApp()
+                        app_stack.append(new_app)
 
-            elif app.name == "get_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                    elif response == "get_expense":
+                        new_app = manage_get_expense_type()
+                        app_stack.append(new_app)
 
-            elif app.name == "update_income_app":
-                if response == "back":
-                    app_stack.append(user_interface.IncomeMenuApp())
+                    elif response == "update_expense":
+                        new_app = manage_update_expense_type()
+                        app_stack.append(new_app)
 
-                elif type(response) is tuple:
-                    new_app = manage_update_income(response[0], response[1])
-                    app_stack.append(new_app)
+                    elif response == "back":
+                        app_stack.append(user_interface.UserInterfaceApp())
 
-            elif app.name == "add_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                elif app.name == "add_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_add_expenditure(response[0], response[1])
-                    app_stack.append(new_app)
+                    elif type(response) is tuple:
+                        income, method = response[0], response[1]
+                        new_app = manage_add_income(
+                            income=income, payment_method=method
+                        )
+                        app_stack.append(new_app)
 
-            elif app.name == "get_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                elif app.name == "get_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-            elif app.name == "update_expenditure_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenditureMenuApp())
+                elif app.name == "update_income_app":
+                    if response == "back":
+                        app_stack.append(user_interface.IncomeMenuApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_update_expenditure(
-                        response[0], response[2], response[1]
-                    )
-                    app_stack.append(new_app)
+                    elif type(response) is tuple:
+                        new_app = manage_update_income(response[0], response[1])
+                        app_stack.append(new_app)
 
-            elif app.name == "add_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                elif app.name == "add_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-                elif type(response) is str:
-                    new_app = manage_add_expense_type(response)
-                    app_stack.append(new_app)
+                    elif type(response) is tuple:
+                        new_app = manage_add_expenditure(response[0], response[1])
+                        app_stack.append(new_app)
 
-            elif app.name == "get_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                elif app.name == "get_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-            elif app.name == "update_expense_type_app":
-                if response == "back":
-                    app_stack.append(user_interface.ExpenseTypeMenuApp())
+                elif app.name == "update_expenditure_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenditureMenuApp())
 
-                elif type(response) is tuple:
-                    new_app = manage_update_expense_type(
-                        expense_type=response[1], expense_id=response[0]
-                    )
-                    app_stack.append(new_app)
+                    elif type(response) is tuple:
+                        new_app = manage_update_expenditure(
+                            response[0], response[2], response[1]
+                        )
+                        app_stack.append(new_app)
+
+                elif app.name == "add_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
+
+                    elif type(response) is str:
+                        new_app = manage_add_expense_type(response)
+                        app_stack.append(new_app)
+
+                elif app.name == "get_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
+
+                elif app.name == "update_expense_type_app":
+                    if response == "back":
+                        app_stack.append(user_interface.ExpenseTypeMenuApp())
+
+                    elif type(response) is tuple:
+                        new_app = manage_update_expense_type(
+                            expense_type=response[1], expense_id=response[0]
+                        )
+                        app_stack.append(new_app)

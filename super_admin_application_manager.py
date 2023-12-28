@@ -1,9 +1,10 @@
 import super_admin_interface as sai
 import super_admin_requests as req
 from os import environ
+import config
 
 
-base_url = "http://127.0.0.1:8000/api"
+base_url = config.get_base_url()
 
 
 def construct_error_app(status_code, message):
@@ -19,7 +20,8 @@ def construct_error_app(status_code, message):
 
 
 try:
-    signup_token = environ("SIGNUP_TOKEN")
+    signup_token = str(config.get_service_token())  # environ.get("SIGNUP_TOKEN")
+
 except:
     new_app = construct_error_app(status_code="", message="Token not found")
     new_app.run()
@@ -305,163 +307,168 @@ def manage_update_user_role(account_name=None, user_name=None, role=None):
 
 # Running the app stack
 
-while app_stack:
-    app = app_stack.pop()
 
-    if app is None:
-        break
+def service_mode():
+    """Function that calls the kallabox api in service mode."""
+    while app_stack:
+        app = app_stack.pop()
 
-    response = app.run()
+        if app is None:
+            break
 
-    if app.name == "super_admin_interface_app":
-        if response == "user":
-            new_app = sai.SuperAdminUserInterfaceApp()
-            app_stack.append(new_app)
+        response = app.run()
 
-        elif response == "account":
-            new_app = sai.SuperAdminAccountInterfaceApp()
-            app_stack.append(new_app)
+        if app.name == "super_admin_interface_app":
+            if response == "user":
+                new_app = sai.SuperAdminUserInterfaceApp()
+                app_stack.append(new_app)
 
-        elif response == "get_income":
-            new_app = manage_get_income()
-            app_stack.append(new_app)
+            elif response == "account":
+                new_app = sai.SuperAdminAccountInterfaceApp()
+                app_stack.append(new_app)
 
-        elif response == "get_expenditure":
-            new_app = manage_get_expenditure()
-            app_stack.append(new_app)
+            elif response == "get_income":
+                new_app = manage_get_income()
+                app_stack.append(new_app)
 
-        elif response == "get_expense_types":
-            new_app = manage_get_expense_types()
-            app_stack.append(new_app)
+            elif response == "get_expenditure":
+                new_app = manage_get_expenditure()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_account_interface_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+            elif response == "get_expense_types":
+                new_app = manage_get_expense_types()
+                app_stack.append(new_app)
 
-        elif response == "get_accounts":
-            new_app = manage_get_accounts()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_account_interface_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)
 
-        elif response == "create_account":
-            new_app = sai.SACreateAccountApp()
-            app_stack.append(new_app)
+            elif response == "get_accounts":
+                new_app = manage_get_accounts()
+                app_stack.append(new_app)
 
-        elif response == "delete_account":
-            new_app = manage_delete_account()
-            app_stack.append(new_app)
+            elif response == "create_account":
+                new_app = sai.SACreateAccountApp()
+                app_stack.append(new_app)
 
-        elif response == "purge_account":
-            new_app = manage_purge_account()
-            app_stack.append(new_app)
+            elif response == "delete_account":
+                new_app = manage_delete_account()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_user_interface_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+            elif response == "purge_account":
+                new_app = manage_purge_account()
+                app_stack.append(new_app)
 
-        elif response == "update_user_role":
-            new_app = manage_update_user_role()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_user_interface_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)
 
-        elif response == "delete_user":
-            new_app = manage_delete_user()
-            app_stack.append(new_app)
+            elif response == "update_user_role":
+                new_app = manage_update_user_role()
+                app_stack.append(new_app)
 
-        elif response == "get_users":
-            new_app = manage_get_users()
-            app_stack.append(new_app)
+            elif response == "delete_user":
+                new_app = manage_delete_user()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_update_user_role_app":
-        if response == "back":
-            new_app = sai.SuperAdminUserInterfaceApp()
-            app_stack.append(new_app)
+            elif response == "get_users":
+                new_app = manage_get_users()
+                app_stack.append(new_app)
 
-        elif type(response) is tuple:
-            user_name, account_name, role = response[0], response[1], response[2]
-            new_app = manage_update_user_role(
-                account_name=account_name, user_name=user_name, role=role
-            )
-            app_stack.append(new_app)
+        elif app.name == "super_admin_update_user_role_app":
+            if response == "back":
+                new_app = sai.SuperAdminUserInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_delete_user_app":
-        if response == "back":
-            new_app = sai.SuperAdminUserInterfaceApp()
-            app_stack.append(new_app)
+            elif type(response) is tuple:
+                user_name, account_name, role = response[0], response[1], response[2]
+                new_app = manage_update_user_role(
+                    account_name=account_name, user_name=user_name, role=role
+                )
+                app_stack.append(new_app)
 
-        elif type(response) is tuple:
-            account_name, user_name = response[0], response[1]
-            new_app = manage_delete_user(account_name=account_name, user_name=user_name)
-            app_stack.append(new_app)
+        elif app.name == "super_admin_delete_user_app":
+            if response == "back":
+                new_app = sai.SuperAdminUserInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_get_users_app":
-        if response == "back":
-            new_app = sai.SuperAdminUserInterfaceApp()
-            app_stack.append(new_app)
+            elif type(response) is tuple:
+                account_name, user_name = response[0], response[1]
+                new_app = manage_delete_user(
+                    account_name=account_name, user_name=user_name
+                )
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_get_accounts_app":
-        if response == "back":
-            new_app = sai.SuperAdminAccountInterfaceApp()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_get_users_app":
+            if response == "back":
+                new_app = sai.SuperAdminUserInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_create_account_app":
-        if response == "back":
-            new_app = sai.SuperAdminAccountInterfaceApp()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_get_accounts_app":
+            if response == "back":
+                new_app = sai.SuperAdminAccountInterfaceApp()
+                app_stack.append(new_app)
 
-        elif type(response) is tuple:
-            account_name, user_name, email, phone, password = (
-                response[0],
-                response[1],
-                response[2],
-                response[3],
-                response[4],
-            )
-            new_app = manage_create_account(
-                account_name=account_name,
-                user_name=user_name,
-                email=email,
-                phone=phone,
-                password=password,
-            )
-            app_stack.append(new_app)
+        elif app.name == "super_admin_create_account_app":
+            if response == "back":
+                new_app = sai.SuperAdminAccountInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_delete_account_app":
-        if response == "back":
-            new_app = sai.SuperAdminAccountInterfaceApp()
-            app_stack.append(new_app)
+            elif type(response) is tuple:
+                account_name, user_name, email, phone, password = (
+                    response[0],
+                    response[1],
+                    response[2],
+                    response[3],
+                    response[4],
+                )
+                new_app = manage_create_account(
+                    account_name=account_name,
+                    user_name=user_name,
+                    email=email,
+                    phone=phone,
+                    password=password,
+                )
+                app_stack.append(new_app)
 
-        else:
-            account_name = response
-            new_app = manage_delete_account(account_name=account_name)
-            app_stack.append(new_app)
+        elif app.name == "super_admin_delete_account_app":
+            if response == "back":
+                new_app = sai.SuperAdminAccountInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_purge_account_app":
-        if response == "back":
-            new_app = sai.SuperAdminAccountInterfaceApp()
-            app_stack.append(new_app)
+            else:
+                account_name = response
+                new_app = manage_delete_account(account_name=account_name)
+                app_stack.append(new_app)
 
-        else:
-            account_name = response
-            new_app = manage_purge_account(account_name=account_name)
-            app_stack.append(new_app)
+        elif app.name == "super_admin_purge_account_app":
+            if response == "back":
+                new_app = sai.SuperAdminAccountInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_get_income_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+            else:
+                account_name = response
+                new_app = manage_purge_account(account_name=account_name)
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_get_expenditure_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_get_income_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "super_admin_get_expense_type_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_get_expenditure_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)
 
-    elif app.name == "error_app":
-        if response == "back":
-            new_app = sai.SuperAdminInterfaceApp()
-            app_stack.append(new_app)
+        elif app.name == "super_admin_get_expense_type_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)
+
+        elif app.name == "error_app":
+            if response == "back":
+                new_app = sai.SuperAdminInterfaceApp()
+                app_stack.append(new_app)

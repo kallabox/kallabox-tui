@@ -2,6 +2,7 @@ import requests
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 from pydantic import PositiveInt, UUID4, EmailStr
+import config
 
 
 class TokenAuth(AuthBase):
@@ -15,7 +16,7 @@ class TokenAuth(AuthBase):
         return r
 
 
-base_url = "http://127.0.0.1:8000/api"  # Need to be changed
+base_url = config.get_base_url()  # Need to be changed
 
 # User Abstractions
 
