@@ -1,8 +1,8 @@
-import application_manager as app_man
-import super_admin_application_manager as super_man
 import sys
+import um.user_app as user_man
+import sam.sa_app as super_man
 
-# total arguments
+
 if len(sys.argv) >= 2 and sys.argv[1].lower() == "admin":
     # Run as admin mode
     super_man.service_mode()
@@ -10,4 +10,4 @@ if len(sys.argv) >= 2 and sys.argv[1].lower() == "admin":
 
 else:
     # Run as user mode
-    app_man.user_mode()
+    user_man.user_mode()
