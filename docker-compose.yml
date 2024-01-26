@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  kallabox-tui:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - kallabox-network
+    environment:
+      KALLABOX_BASE_URL: ${KALLABOX_BASE_URL:-http://kallabox-api:8888}
+      KALLABOX_SERVICE_TOKEN: ${KALLABOX_SERVICE_TOKEN:-kallabox_service_token}
+
+networks:
+  kallabox-network:
+    external: true
