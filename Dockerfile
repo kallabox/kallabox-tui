@@ -3,4 +3,4 @@ WORKDIR /kallabox
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 COPY . .
-ENTRYPOINT ["python", "main.py"]
+CMD ["python3", "main.py"]

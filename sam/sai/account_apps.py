@@ -154,7 +154,7 @@ class SAPurgeAccountApp(App):
     account_name = reactive(str)
     CSS = """
         DataTable {
-        width: 105;
+        width: 175;
         padding: 2;
         }
 
@@ -210,7 +210,7 @@ class SADeleteAccountApp(App):
     account_name = reactive(str)
     CSS = """
         DataTable {
-        width: 105;
+        width: 175;
         padding: 2;
         }
 

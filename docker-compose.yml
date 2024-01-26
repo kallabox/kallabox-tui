@@ -2,9 +2,7 @@ version: "3"
 
 services:
   kallabox-tui:
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    image: ghcr.io/kallabox/kallabox-tui:${KALLABOX_VERSION:-latest}
     restart: always
     networks:
       - kallabox-network
