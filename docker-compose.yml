@@ -7,7 +7,7 @@ services:
     networks:
       - kallabox-network
     environment:
-      KALLABOX_BASE_URL: ${KALLABOX_BASE_URL:-http://kallabox-api:8888}
+      KALLABOX_BASE_URL: ${KALLABOX_BASE_URL:-http://kallabox-api:8888/api}
       KALLABOX_SERVICE_TOKEN: ${KALLABOX_SERVICE_TOKEN:-kallabox_service_token}
 
 networks:
