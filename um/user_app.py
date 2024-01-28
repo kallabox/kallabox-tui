@@ -26,18 +26,6 @@ def construct_error_app(status_code: int | str, message: str):
     return app
 
 
-def retry_response(refresh_token):
-    """Refreshes the current access token"""
-    global access_token
-    return_object = user_requests.refresh_access_token(refresh_token)
-    if return_object[0] is False:
-        return False
-
-    else:
-        access_token = return_object[1]
-        return True
-
-
 def manage_logout():
     """Management function to handle user logout."""
     response = authentication.logout(access_token=access_token)
