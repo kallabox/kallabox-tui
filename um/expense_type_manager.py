@@ -19,14 +19,13 @@ def construct_error_app(status_code: int | str, message: str):
 
 def retry_response(refresh_token: str):
     """Refreshes the current access token"""
-    global access_token
     return_object = user_requests.refresh_access_token(refresh_token)
     if return_object[0] is False:
-        return False
+        return (False, None)
 
     else:
         access_token = return_object[1]
-        return True
+        return (True, access_token)
 
 
 def manage_get_expense_type(access_token: str, refresh_token: str):
@@ -34,12 +33,12 @@ def manage_get_expense_type(access_token: str, refresh_token: str):
     response = expense_type_requests.get_expense_type(access_token=access_token)
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = expense_type_requests.get_expense_type(
                     access_token=access_token
                 )
@@ -79,12 +78,12 @@ def manage_add_expense_type(expense_type: str, access_token: str, refresh_token:
     )
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = expense_type_requests.create_expense_type(
                     expense_type=expense_type, access_token=access_token
                 )
@@ -124,12 +123,12 @@ def manage_update_expense_type(
     response = expense_type_requests.get_expense_type(access_token=access_token)
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = expense_type_requests.get_expense_type(
                     access_token=access_token
                 )
@@ -150,14 +149,17 @@ def manage_update_expense_type(
                     )
                     if type(update_response) is tuple:
                         if update_response[1] == 401:
-                            refreshed_access_token = retry_response(refresh_token)
-                            if not refreshed_access_token:
+                            (
+                                refreshed_access_token_status,
+                                access_token,
+                            ) = retry_response(refresh_token)
+                            if not refreshed_access_token_status:
                                 app = construct_error_app(
                                     update_response[1], update_response[2]
                                 )
                                 return app
 
-                            elif refreshed_access_token:
+                            elif refreshed_access_token_status:
                                 update_response = (
                                     expense_type_requests.update_expense_type(
                                         id=expense_id,
@@ -221,12 +223,14 @@ def manage_update_expense_type(
         )
         if type(update_response) is tuple:
             if update_response[1] == 401:
-                refreshed_access_token = retry_response(refresh_token)
-                if not refreshed_access_token:
+                refreshed_access_token_status, access_token = retry_response(
+                    refresh_token
+                )
+                if not refreshed_access_token_status:
                     app = construct_error_app(update_response[1], update_response[2])
                     return app
 
-                elif refreshed_access_token:
+                elif refreshed_access_token_status:
                     update_response = expense_type_requests.update_expense_type(
                         id=expense_id,
                         expense_type=expense_type,

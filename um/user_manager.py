@@ -18,14 +18,13 @@ def construct_error_app(status_code: int | str, message: str):
 
 def retry_response(refresh_token):
     """Refreshes the current access token"""
-    global access_token
     return_object = user_requests.refresh_access_token(refresh_token)
     if return_object[0] is False:
-        return False
+        return (False, None)
 
     else:
         access_token = return_object[1]
-        return True
+        return (True, access_token)
 
 
 def manage_get_users(access_token: str, refresh_token: str):
@@ -33,12 +32,12 @@ def manage_get_users(access_token: str, refresh_token: str):
     response = user_requests.get_users(access_token=access_token)
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = user_requests.get_users(access_token=access_token)
                 if type(response) is tuple:
                     app = construct_error_app(response[1], response[2])
@@ -83,12 +82,12 @@ def manage_add_user(
 
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = user_requests.create_user(
                     email=email,
                     user_name=user_name,
@@ -130,12 +129,12 @@ def manage_update_user_role(
     response = user_requests.get_users(access_token=access_token)
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = user_requests.get_users(access_token=access_token)
                 if type(response) is tuple:
                     app = construct_error_app(response[1], response[2])
@@ -153,14 +152,17 @@ def manage_update_user_role(
                     )
                     if type(update_response) is tuple:
                         if update_response[1] == 401:
-                            refreshed_access_token = retry_response(refresh_token)
-                            if not refreshed_access_token:
+                            (
+                                refreshed_access_token_status,
+                                access_token,
+                            ) = retry_response(refresh_token)
+                            if not refreshed_access_token_status:
                                 app = construct_error_app(
                                     update_response[1], update_response[2]
                                 )
                                 return app
 
-                            elif refreshed_access_token:
+                            elif refreshed_access_token_status:
                                 update_response = user_requests.update_user_role(
                                     user_name=user_name,
                                     role=role,
@@ -219,12 +221,14 @@ def manage_update_user_role(
         )
         if type(update_response) is tuple:
             if update_response[1] == 401:
-                refreshed_access_token = retry_response(refresh_token)
-                if not refreshed_access_token:
+                refreshed_access_token_status, access_token = retry_response(
+                    refresh_token
+                )
+                if not refreshed_access_token_status:
                     app = construct_error_app(update_response[1], update_response[2])
                     return app
 
-                elif refreshed_access_token:
+                elif refreshed_access_token_status:
                     update_response = user_requests.update_user_role(
                         user_name=user_name, role=role, access_token=access_token
                     )
@@ -268,12 +272,12 @@ def manage_delete_user(user_name: None | str, access_token: str, refresh_token: 
     response = user_requests.get_users(access_token=access_token)
     if type(response) is tuple:
         if response[1] == 401:
-            refreshed_access_token = retry_response(refresh_token)
-            if not refreshed_access_token:
+            refreshed_access_token_status, access_token = retry_response(refresh_token)
+            if not refreshed_access_token_status:
                 app = construct_error_app(response[1], response[2])
                 return app
 
-            elif refreshed_access_token:
+            elif refreshed_access_token_status:
                 response = user_requests.get_users(access_token=access_token)
                 if type(response) is tuple:
                     app = construct_error_app(response[1], response[2])
@@ -291,14 +295,17 @@ def manage_delete_user(user_name: None | str, access_token: str, refresh_token: 
                     )
                     if type(delete_response) is tuple:
                         if delete_response[1] == 401:
-                            refreshed_access_token = retry_response(refresh_token)
-                            if not refreshed_access_token:
+                            (
+                                refreshed_access_token_status,
+                                access_token,
+                            ) = retry_response(refresh_token)
+                            if not refreshed_access_token_status:
                                 app = construct_error_app(
                                     delete_response[1], delete_response[2]
                                 )
                                 return app
 
-                            elif refreshed_access_token:
+                            elif refreshed_access_token_status:
                                 delete_response = user_requests.delete_user(
                                     user_name=user_name, access_token=access_token
                                 )
@@ -366,12 +373,14 @@ def manage_delete_user(user_name: None | str, access_token: str, refresh_token: 
         )
         if type(delete_response) is tuple:
             if delete_response[1] == 401:
-                refreshed_access_token = retry_response(refresh_token)
-                if not refreshed_access_token:
+                refreshed_access_token_status, access_token = retry_response(
+                    refresh_token
+                )
+                if not refreshed_access_token_status:
                     app = construct_error_app(delete_response[1], delete_response[2])
                     return app
 
-                elif refreshed_access_token:
+                elif refreshed_access_token_status:
                     delete_response = user_requests.delete_user(
                         user_name=user_name, access_token=access_token
                     )
