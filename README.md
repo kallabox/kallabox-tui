@@ -137,7 +137,7 @@ An example flow chart for logging in, for an **account administrator** is shown 
 
 ![login account admin](https://github.com/kallabox/kallabox-api/assets/102421860/e57b36d0-16b6-4a7e-a17d-7d080fb5cfdc)
 
-After [Adding Edward]() **(An User)**, his login flow chart is shown as an example.
+After [Adding Edward](https://github.com/kallabox/kallabox-tui/tree/main#3-adding-an-user-to-account) **(An User)**, his login flow chart is shown as an example.
 
 ![login user](https://github.com/kallabox/kallabox-api/assets/102421860/1344b4d7-0d66-45b3-9490-f44ede14713c)
 
