@@ -194,7 +194,7 @@ Now, Ashley **(Account Administrator)** can see the incomes entered by all membe
 
 ### 6. Updating Income 
 
-George, incorrectly entered an income in the **9th row** as 55 instead of **59**. So, Ashley decides to correct the entry, by using the **Update Income** functionality.
+George **(User)**, incorrectly entered an income in the **9th row** as 55 instead of **59**. So, Ashley **(Account Administrator)** decides to correct the entry, by using the **Update Income** functionality.
 
 The **Update Income** functionality can be used by both **Users** and **Account Administrators**. To update income, go to **Income** => **Update Income** and then enter the **Row Number** and **Corrected Amount** and click the **Update** button.
 
