@@ -485,11 +485,11 @@ def user_mode():
 
                 elif app.name == "get_income_app":
                     if response == "back":
-                        app_stack.append(income_manager.IncomeMenuApp())
+                        app_stack.append(income_apps.IncomeMenuApp())
 
                 elif app.name == "update_income_app":
                     if response == "back":
-                        app_stack.append(income_manager.IncomeMenuApp())
+                        app_stack.append(income_apps.IncomeMenuApp())
 
                     elif type(response) is tuple:
                         income, trans_id = response[0], response[1]
