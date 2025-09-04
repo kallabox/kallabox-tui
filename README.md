@@ -22,7 +22,7 @@ cd kallabox-tui
 ```
 5. Create the **kallabox-tui** docker container, by using the following command.
 ```
-docker-compose create
+docker compose create
 ```
 
 You should be able to see an output like this at the end.
@@ -33,7 +33,7 @@ You should be able to see an output like this at the end.
 
 7. Now run the docker container, by using the following command.
 ```
-docker-compose run kallabox-tui bash
+docker compose run kallabox-tui bash
 ```
 
 You can see a new container terminal like this (The characters after root@ may vary).
@@ -97,7 +97,7 @@ exit
 
 To stop and remove the containers, use the following command.
 ```
-docker-compose down
+docker compose down
 ```
 
 Your output should look something like this at the end.
